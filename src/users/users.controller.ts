@@ -8,7 +8,10 @@ import {
   UseGuards,
   UseInterceptors,
   Param,
+  UploadedFile,
 } from '@nestjs/common';
+import { diskStorage } from 'multer';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOkResponse, ApiOperation,ApiParam,ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserDto } from './dto/user.dto';
 import { UsersService } from './users.service';
@@ -23,6 +26,9 @@ import { ProfileDto } from './dto/profile.dto';
 import { SettingsDto } from './dto/settings.dto';
 import { UpdateGalleryDto } from './dto/update-gallery.dto';
 import { CurrentUser } from 'common/decorators/current-user.decorator';
+import { editFileName, imageFileFilter } from 'common/utils/file-uploading';
+import { PicDto } from './dto/pic.dto';
+import { User } from './interfaces/user.interface';
 
 @ApiTags('User')
 @ApiBearerAuth()
@@ -91,9 +97,41 @@ export class UsersController {
   @ApiOperation({ summary: 'UsersController_updateProfile' })
   @ApiResponse({status: HttpStatus.OK, type: ResponseSuccess})
   @ApiBody({type: ProfileDto})
-  async updateProfile(@Body() profileDto: ProfileDto): Promise<IResponse> {
+  async updateProfile(
+    @CurrentUser() _user: User,
+    @Body() profileDto: ProfileDto,
+    @UploadedFile() file
+    ): Promise<IResponse> {
     try {
+      profileDto.email = _user.email;
       var user =  await this.usersService.updateProfile(profileDto);
+      return new ResponseSuccess("PROFILE.UPDATE_SUCCESS", new UserDto(user));
+    } catch(error){
+      return new ResponseError("PROFILE.UPDATE_ERROR", error);
+    }
+  }
+  @Post('profile/pic')
+  @UseGuards(RolesGuard)
+  @Roles('User')
+  @ApiOperation({ summary: 'UsersController_updateProfilePic' })
+  @ApiResponse({status: HttpStatus.OK, type: ResponseSuccess})
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FileInterceptor('profilepicture', {
+      storage: diskStorage({
+        destination: './files',
+        filename: editFileName,
+      }),
+      fileFilter: imageFileFilter,
+    }),
+  )
+  @ApiBody({type: PicDto})
+  async updateProfilePic(
+    @CurrentUser() _user: any,
+    @UploadedFile() file
+    ): Promise<IResponse> {
+    try {
+      var user =  await this.usersService.updateProfilePic(file, _user);
       return new ResponseSuccess("PROFILE.UPDATE_SUCCESS", new UserDto(user));
     } catch(error){
       return new ResponseError("PROFILE.UPDATE_ERROR", error);
@@ -103,7 +141,7 @@ export class UsersController {
   @Post('gallery/update')
   @UseGuards(RolesGuard)
   @Roles('User')
-  @ApiOperation({ summary: 'UsersController_updateGallery' })
+  @ApiOperation({ summary: 'UsersController_updateGallery',deprecated: true})
   @ApiResponse({status: HttpStatus.OK, type: ResponseSuccess})
   @ApiBody({type: UpdateGalleryDto})
   async updateGallery(@Body() galleryRequest: UpdateGalleryDto): Promise<IResponse> {
@@ -120,7 +158,7 @@ export class UsersController {
   @Post('settings/update')
   @UseGuards(RolesGuard)
   @Roles('User')
-  @ApiOperation({ summary: 'UsersController_updateSettings' })
+  @ApiOperation({ summary: 'UsersController_updateSettings', deprecated: true })
   @ApiResponse({status: HttpStatus.OK, type: ResponseSuccess})
   @ApiBody({type: SettingsDto})
   async updateSettings(@Body() settingsDto: SettingsDto): Promise<IResponse> {

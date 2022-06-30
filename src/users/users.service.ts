@@ -71,18 +71,18 @@ export class UsersService {
     if(profileDto.phone) userFromDb.phone = profileDto.phone;
     if(profileDto.birthdaydate) userFromDb.birthdaydate = profileDto.birthdaydate;
 
-    if(profileDto.profilepicture){
-      let base64Data = profileDto.profilepicture.replace(/^data:image\/png;base64,/, "");
-      let dir = "../public/users/"+ userFromDb.email;
-      
-      let success = await this.writeFile( dir, "profilepic.png", base64Data);
-      if(success == true) {
-        userFromDb.photos = userFromDb.photos || { profilePic : new PhotoDto(), gallery: []};
-        userFromDb.photos.profilePic = userFromDb.photos.profilePic || new PhotoDto();
-        userFromDb.photos.profilePic.date = new Date();
-        userFromDb.photos.profilePic.url = "/public/users/" + userFromDb.email + "/profilepic.png"
-      }
-    }
+    
+    await userFromDb.save();
+    return userFromDb;
+  }
+  async updateProfilePic(file, user): Promise<User> {
+    let userFromDb = await this.userModel.findOne({ email: user.email});
+    if(!userFromDb) throw new HttpException('COMMON.USER_NOT_FOUND', HttpStatus.NOT_FOUND);
+
+    userFromDb.photos = userFromDb.photos || { profilePic : new PhotoDto(), gallery: []};
+    userFromDb.photos.profilePic = userFromDb.photos.profilePic || new PhotoDto();
+    userFromDb.photos.profilePic.date = new Date();
+    userFromDb.photos.profilePic.url = file.path
     
     await userFromDb.save();
     return userFromDb;

@@ -1,3 +1,5 @@
+import { ApiProperty } from "@nestjs/swagger";
+
 export class ProfileDto {
   constructor(object: any) {
     this.email = object.email;
@@ -5,12 +7,14 @@ export class ProfileDto {
     this.surname = object.surname;    
     this.birthdaydate = object.birthdaydate;
     this.phone = object.phone;
-    this.profilepicture = object.profilepicture;
   };
-  readonly email: string;
+  email: string;
+  @ApiProperty({type: String, required: false})
   readonly name: string;
+  @ApiProperty({type: String, required: false})
   readonly surname: string;
+  @ApiProperty({type: String, required: false})
   readonly birthdaydate: Date;
+  @ApiProperty({type: String, required: false})
   readonly phone: string;
-  readonly profilepicture: string;
 }

@@ -13,7 +13,7 @@ import { HttpExceptionFilter } from 'common/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.use('/public', express.static(join(__dirname, '../../public')));
+  app.use('/files', express.static(join(__dirname, '../files')));
   var bodyParser = require('body-parser');
   app.use(bodyParser.json({limit: '5mb'}));
   app.use(bodyParser.urlencoded({limit: '5mb', extended: true}));

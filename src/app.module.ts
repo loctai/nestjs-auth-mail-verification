@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { MulterModule } from '@nestjs/platform-express';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -12,7 +13,16 @@ const mongo_uri = 'mongodb://' + userString + config.db.host + ':' + (config.db.
 console.log({mongo_uri});
 
 @Module({
-  imports: [MongooseModule.forRoot(mongo_uri), UsersModule, AuthModule],
+  imports: [
+    MongooseModule.forRoot(mongo_uri),
+    MulterModule.registerAsync({
+      useFactory: () => ({
+        dest: './files',
+      }),
+    }),
+    AuthModule,
+    UsersModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
