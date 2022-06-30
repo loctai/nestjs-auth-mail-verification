@@ -1,20 +1,21 @@
 export default {
-    "db": {
-        "user":"" ,
-        "pass":"",
-        "host": "localhost",
-        "port": "27017",
-        "database": "testdb",
-        "authSource": "admin"
-    },
     // "db": {
-    //     "user":"root" ,
-    //     "pass":"example",
-    //     "host": "mongo",
+    //     "user":"" ,
+    //     "pass":"",
+    //     "host": "localhost",
     //     "port": "27017",
     //     "database": "testdb",
     //     "authSource": "admin"
     // },
+    
+    "db": {
+        "user":"root" ,
+        "pass":"example",
+        "host": "mongo",
+        "port": "27017",
+        "database": "testdb",
+        "authSource": "admin"
+    },
     "host": {
         "url": "http://localhost",
         "port": "3000"
